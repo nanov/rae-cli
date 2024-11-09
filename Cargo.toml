@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 html2text = { version = "0.13.2", features = ["css"] }
 inquire = "0.7.5"
+minus = { version = "5.6.1", features = ["static_output", "search"] }
 reqwest = { version = "0.12.8", features = ["blocking"] }
 scraper = "0.20.0"
 terminal-menu = "3.0.0"
