@@ -52,21 +52,27 @@ fn default_colour_map(
 }
 
 fn imprimir_palabra(definicion_html: ElementRef) {
-    let output = minus::Pager::new();
     
     let co = config::rich(); // .use_doc_css();
     let mut redader = std::io::Cursor::new(definicion_html.inner_html());
     let d = co.coloured(&mut redader, 100, default_colour_map).unwrap();
 
-    output.push_str(d).unwrap();
-    minus::page_all(output).unwrap();
-    // print!("{}", d);
+    print!("{}", d);
 }
 
 fn print_options(options_list: ElementRef) {
     use inquire::Select;
     
     let options_list = options_list.select(&*&OPTIONS_SELECTOR).filter_map(|x| x.text().next()).collect::<Vec<&str>>();
+    if options_list.len() == 1 {
+
+        println!("La palabra hacar no está en el Diccionario. Las entradas que se muestran a continuación podrían estar relacionadas: {}", options_list[0]);
+        println!();
+        buschar_palabra(options_list[0]);
+        return
+    }
+
+
     let ans = Select::new("La palabra hacar no está en el Diccionario. Las entradas que se muestran a continuación podrían estar relacionadas:", options_list).prompt();
 
     match ans {
