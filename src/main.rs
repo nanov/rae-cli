@@ -52,16 +52,27 @@ fn default_colour_map(
 }
 
 fn imprimir_palabra(definicion_html: ElementRef) {
+    
     let co = config::rich(); // .use_doc_css();
     let mut redader = std::io::Cursor::new(definicion_html.inner_html());
     let d = co.coloured(&mut redader, 100, default_colour_map).unwrap();
+
     print!("{}", d);
 }
 
 fn print_options(options_list: ElementRef) {
     use inquire::Select;
     
-    let options_list = options_list.select(&*&OPTIONS_SELECTOR).map(|x| x.inner_html()).collect::<Vec<String>>();
+    let options_list = options_list.select(&*&OPTIONS_SELECTOR).filter_map(|x| x.text().next()).collect::<Vec<&str>>();
+    if options_list.len() == 1 {
+
+        println!("La palabra hacar no está en el Diccionario. Las entradas que se muestran a continuación podrían estar relacionadas: {}", options_list[0]);
+        println!();
+        buschar_palabra(options_list[0]);
+        return
+    }
+
+
     let ans = Select::new("La palabra hacar no está en el Diccionario. Las entradas que se muestran a continuación podrían estar relacionadas:", options_list).prompt();
 
     match ans {
@@ -70,7 +81,7 @@ fn print_options(options_list: ElementRef) {
     }
 }
 
-fn print_definition_or_options(word: String, page_core: ElementRef) {
+fn print_definition_or_options(word: &str, page_core: ElementRef) {
     match  page_core.select(&*RESULT_OR_SUGGESTION_SELECTOR).next() {
         Some(w) => match w.value().name() {
                      "article" => imprimir_palabra(page_core),
@@ -83,7 +94,7 @@ fn print_definition_or_options(word: String, page_core: ElementRef) {
 
 
 // TODO: implement return codes or similiar insted of passing the f*cking word around
-fn buschar_palabra(palabra: String){
+fn buschar_palabra(palabra: &str){
     let client = reqwest::blocking::Client::new();
     let pagina = client.get(format!("https://dle.rae.es/{}", palabra)).header("User-Agent", "mitk").send().expect("no url");
     
@@ -110,5 +121,5 @@ fn main() {
     }
 
     let palabra = args[1].clone();
-    buschar_palabra(palabra);
+    buschar_palabra(&palabra);
 }
