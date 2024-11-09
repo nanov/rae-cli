@@ -12,6 +12,10 @@ use termion::color::*;
 
 use std::cell::LazyCell;
 
+use clap::{arg, Command};
+
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+const NAME: &str = env!("CARGO_PKG_NAME");
 const DIV_RESULTS_SELECTOR: LazyCell<Selector> = LazyCell::new(|| { Selector::parse(r#"div[id="resultados"]"#).unwrap() });
 const RESULT_OR_SUGGESTION_SELECTOR: LazyCell<Selector> = LazyCell::new(|| { Selector::parse(r#"article, div[class="item-list"]"#).unwrap() });
 const OPTIONS_SELECTOR: LazyCell<Selector> = LazyCell::new(|| { Selector::parse("a").unwrap() });
@@ -112,14 +116,17 @@ fn buschar_palabra(palabra: &str){
 
 }
 
+
+
 fn main() {
+    let matches = Command::new(NAME)
+        .arg_required_else_help(true)
+        .name(NAME)
+        .version(VERSION)
+        .about("buschar palabras en real Real Academia Española.")
+        .arg(arg!([palabra] "Optional name to operate on").required(true))
+        .get_matches();
 
-    let args: Vec<String> = env::args().collect();
-    if args.len() < 2 {
-        // TODO: proper help/usage whatever, or just leave it ;)
-        panic!("you are stupid...");
-    }
-
-    let palabra = args[1].clone();
-    buschar_palabra(&palabra);
+    let p = matches.get_one::<String>("palabra").expect("unreachable").clone();
+    buschar_palabra(&p);
 }
