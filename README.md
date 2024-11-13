@@ -1,6 +1,6 @@
 # Real Academia Española CLI Dictionary (rae-cli)
 
-A CLI tool for searching and displaying Spanish-to-Spanish word definitions from the [RAE](https://dle.rae.es/) (Real Academia Española) dictionary.
+A command-line tool to search and display Spanish word definitions from the [Real Academia Española (RAE)](https://dle.rae.es/) dictionary.
 
 ## Installation
 
@@ -53,4 +53,3 @@ With this setup, typing `rae` will call `rae-cli` with `less` by default, allowi
 
 ---
 
-This should cover everything! Let me know if you’d like any other changes.
