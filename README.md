@@ -1,4 +1,5 @@
 # Real Academia Española CLI Dictionary (rae-cli)
+<p align="right"><sub><sup>nanov</sup></sub></p>
 
 A command-line tool to search and display Spanish word definitions from the [Real Academia Española (RAE)](https://dle.rae.es/) dictionary.
 
@@ -56,4 +57,8 @@ alias rae=rae_cli
 
 With this setup, typing `rae` will call `rae-cli` with `less` by default, allowing you to scroll through longer entries easily. 
 
+---
 
+### Copyleft
+
+Dimitar Nanov, MIT license
