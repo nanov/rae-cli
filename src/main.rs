@@ -1,4 +1,4 @@
-use std::env;
+use std::{env, usize};
 use std::fmt::Display;
 use const_format::concatcp;
 use inquire::InquireError;
@@ -11,7 +11,6 @@ use scraper::{Html, Selector};
 use reqwest::{self, StatusCode};
 use html2text;
 use html2text::config;
-use html2text::render::RichAnnotation;
 
 use std::cell::LazyCell;
 
@@ -81,51 +80,14 @@ impl Display for RaeError {
 
 impl std::error::Error for RaeError {}
 
-
-// TODO: either work with adapted colours or get rid
-fn default_colour_map(
-    annotations: &[RichAnnotation],
-    s: &str,
-) -> String {
-    use RichAnnotation::*;
-    // Explicit CSS colours override any other colours
-    let mut start = Vec::new();
-    let mut finish = Vec::new();
-    for annotation in annotations.iter() {
-        match annotation {
-            Default => {}
-            Link(_) => {
-                start.push("");
-                finish.push("");
-            }
-            Colour(_) => {
-                    start.push("");
-                    finish.push("");
-            }
-            BgColour(_) => {
-            }
-            _ => {}
-        }
-    }
-    // Reverse the finish sequences
-    finish.reverse();
-    let mut result = start.join("");
-    result.push_str(s);
-    for s in finish {
-        result.push_str(&s);
-    }
-    result
-}
-
-
 fn imprimir_palabra(definicion_html: ElementRef) -> RaeResult {
     let width = match termsize::get() {
-        Some(s) => s.rows,
+        Some(s) => s.cols,
         _ => 80
     };
-    let co = config::rich();
-    let mut redader = std::io::Cursor::new(definicion_html.inner_html());
-    let d = co.coloured(&mut redader, usize::from(width), default_colour_map)?;
+
+    let d = config::rich()
+        .string_from_read(definicion_html.inner_html().as_bytes(), usize::from(width))?;
 
     Ok(RaeSuccess::Definicion(d))
 }
