@@ -100,13 +100,14 @@ fn print_options(options_list: ElementRef) -> RaeResult {
         .filter_map(|x| x.text().next())
         .collect::<Vec<&str>>();
 
-    if options_list.len() == 1 {
-        println!("La palabra hacar no está en el Diccionario. Las entradas que se muestran a continuación podrían estar relacionadas: {}", options_list[0]);
-        println!();
-        buschar_palabra(options_list[0])
-    } else {
-        let choice = Select::new("La palabra hacar no está en el Diccionario. Las entradas que se muestran a continuación podrían estar relacionadas:", options_list).prompt()?;
-        buschar_palabra(choice) 
+    match  options_list.len() {
+        1 =>  {
+            println!("La palabra hacar no está en el Diccionario. Las entradas que se muestran a continuación podrían estar relacionadas: {}", options_list[0]);
+            println!();
+            buschar_palabra(options_list[0])
+        },
+        0 => Ok(RaeSuccess::NoEncontrado), // hihglky unlikley
+        _ => buschar_palabra(Select::new("La palabra hacar no está en el Diccionario. Las entradas que se muestran a continuación podrían estar relacionadas:", options_list).prompt()?),
     }
 }
 
