@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 clap = "4.5.20"
+const_format = "0.2.33"
 html2text = { version = "0.13.2", features = ["css"] }
 inquire = "0.7.5"
 reqwest = { version = "0.12.8", features = ["blocking"] }
