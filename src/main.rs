@@ -80,7 +80,7 @@ impl Display for RaeError {
 
 impl std::error::Error for RaeError {}
 
-fn imprimir_palabra(definicion_html: ElementRef) -> RaeResult {
+fn extract_definition(definicion_html: ElementRef) -> RaeResult {
     let width = match termsize::get() {
         Some(s) => s.cols,
         _ => 80
@@ -92,30 +92,30 @@ fn imprimir_palabra(definicion_html: ElementRef) -> RaeResult {
     Ok(RaeSuccess::Definicion(d))
 }
 
-fn print_options(options_list: ElementRef) -> RaeResult {
+fn handle_suggestions(options_list: ElementRef) -> RaeResult {
     use inquire::Select;
     
-    let options_list = options_list
+    let suggestion_list = options_list
         .select(&*&OPTIONS_SELECTOR)
         .filter_map(|x| x.text().next())
         .collect::<Vec<&str>>();
 
-    match  options_list.len() {
+    match suggestion_list.len() {
         1 =>  {
-            println!("La palabra hacar no está en el Diccionario. Las entradas que se muestran a continuación podrían estar relacionadas: {}", options_list[0]);
+            println!("La palabra hacar no está en el Diccionario. Las entradas que se muestran a continuación podrían estar relacionadas: {}", suggestion_list[0]);
             println!();
-            buschar_palabra(options_list[0])
+            buschar_palabra(suggestion_list[0])
         },
         0 => Ok(RaeSuccess::NoEncontrado), // hihglky unlikley
-        _ => buschar_palabra(Select::new("La palabra hacar no está en el Diccionario. Las entradas que se muestran a continuación podrían estar relacionadas:", options_list).prompt()?),
+        _ => buschar_palabra(Select::new("La palabra hacar no está en el Diccionario. Las entradas que se muestran a continuación podrían estar relacionadas:", suggestion_list).prompt()?),
     }
 }
 
-fn print_definition_or_options(page_core: ElementRef) -> RaeResult {
+fn try_get_definition(page_core: ElementRef) -> RaeResult {
     match  page_core.select(&*RESULT_OR_SUGGESTION_SELECTOR).next() {
         Some(w) => match w.value().name() {
-                     "article" => imprimir_palabra(page_core),
-                      "div" => print_options(w),
+                     "article" => extract_definition(page_core),
+                      "div" => handle_suggestions(w),
                      _ => Ok(RaeSuccess::NoEncontrado),
                 },
         _ => Ok(RaeSuccess::NoEncontrado),
@@ -140,12 +140,11 @@ fn buschar_palabra(palabra: &str) -> RaeResult {
         let dom_fragment = Html::parse_document(&raw_page);
 
         match dom_fragment.select(&*DIV_RESULTS_SELECTOR).next() {
-            Some(c) => print_definition_or_options(c),
+            Some(c) => try_get_definition(c),
             _ => Err(RaeError::UnexpectedSiteStructure),
         }
     }
 }
-
 
 
 fn main() {
