@@ -11,4 +11,4 @@ inquire = "0.7.5"
 reqwest = { version = "0.12.8", features = ["blocking"] }
 scraper = "0.20.0"
 terminal-menu = "3.0.0"
-termion = "4.0.3"
+termsize = "0.1.9"

@@ -12,7 +12,6 @@ use reqwest::{self, StatusCode};
 use html2text;
 use html2text::config;
 use html2text::render::RichAnnotation;
-use termion::color::*;
 
 use std::cell::LazyCell;
 
@@ -96,12 +95,12 @@ fn default_colour_map(
         match annotation {
             Default => {}
             Link(_) => {
-                start.push(format!("{}", termion::style::Underline));
-                finish.push(format!("{}", termion::style::Reset));
+                start.push("");
+                finish.push("");
             }
-            Colour(c) => {
-                    start.push(format!("{}", termion::color::Fg(Rgb(c.r, c.g, c.b))));
-                    finish.push(format!("{}", Fg(Reset)));
+            Colour(_) => {
+                    start.push("");
+                    finish.push("");
             }
             BgColour(_) => {
             }
@@ -120,7 +119,10 @@ fn default_colour_map(
 
 
 fn imprimir_palabra(definicion_html: ElementRef) -> RaeResult {
-    let (width, _) = termion::terminal_size().unwrap();
+    let width = match termsize::get() {
+        Some(s) => s.rows,
+        _ => 80
+    };
     let co = config::rich();
     let mut redader = std::io::Cursor::new(definicion_html.inner_html());
     let d = co.coloured(&mut redader, usize::from(width), default_colour_map)?;
