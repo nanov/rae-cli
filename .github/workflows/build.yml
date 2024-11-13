@@ -16,7 +16,11 @@ jobs:
       - uses: taiki-e/create-gh-release-action@v1
         with:
           # (optional) Path to changelog.
+<<<<<<< HEAD
           # changelog: CHANGELOG.md
+=======
+          changelog: CHANGELOG.md
+>>>>>>> d13247f479d853832f107b1db5963787494deffc
           # (required) GitHub token for creating GitHub Releases.
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -38,7 +42,11 @@ jobs:
         with:
           # (required) Comma-separated list of binary names (non-extension portion of filename) to build and upload.
           # Note that glob pattern is not supported yet.
+<<<<<<< HEAD
           bin: rae-cli
+=======
+          bin: ...
+>>>>>>> d13247f479d853832f107b1db5963787494deffc
           # (optional) Target triple, default is host triple.
           # This is optional but it is recommended that this always be set to
           # clarify which target you are building for if macOS is included in
