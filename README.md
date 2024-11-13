@@ -1,5 +1,5 @@
 # Real Academia Española CLI Dictionary (rae-cli)
-<p align="right"><sub><sup>nanov</sup></sub></p>
+<p align="right"><sub>nanov</sub></p>
 
 A command-line tool to search and display Spanish word definitions from the [Real Academia Española (RAE)](https://dle.rae.es/) dictionary.
 
