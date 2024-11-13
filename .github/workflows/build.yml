@@ -1,53 +1,34 @@
-on:
-  release:
-    types: [created]
-  push:
+name: Release
 
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+      - v[0-9]+.*
 
 jobs:
-  release:
-    name: release ${{ matrix.target }} (with non-required env)
+  create-release:
     runs-on: ubuntu-latest
-    if: github.event_name == 'release'
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target: x86_64-pc-windows-gnu
-            archive: zip
-          - target: x86_64-unknown-linux-musl
-            archive: tar.gz
-          - target: x86_64-apple-darwin
-            archive: zip
-          - target: wasm32-wasi
-            archive: zip tar.gz
     steps:
-      - uses: actions/checkout@master
-      - name: Compile and release
-        uses: rust-build/rust-build.action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
+      - uses: taiki-e/create-gh-release-action@v1
         with:
-          RUSTTARGET: ${{ matrix.target }}
-          EXTRA_FILES: "README.md"
-          SRC_DIR: "hello"
-          ARCHIVE_TYPES: ${{ matrix.archive }}
-          PRE_BUILD: "pre_build.sh"
-          POST_BUILD: "test/post_build.sh"
-          MINIFY: "yes"
-  release_without_not_required:
-    name: release ${{ matrix.target }}
+          # (optional) Path to changelog.
+          # changelog: CHANGELOG.md
+          # (required) GitHub token for creating GitHub Releases.
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  upload-assets:
+    needs: create-release
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: true
-      matrix:
-        target: [x86_64-unknown-linux-musl]
     steps:
-      - uses: actions/checkout@master
-      - name: Compile and release
-        uses: rust-build/rust-build.action@master
+      - uses: actions/checkout@v4
+      - uses: taiki-e/upload-rust-binary-action@v1
         with:
-          RUSTTARGET: ${{ matrix.target }}
-          UPLOAD_MODE: none
-      - name: Checkout output
-        run: ls -laR
+          # (required) Comma-separated list of binary names (non-extension portion of filename) to build and upload.
+          # Note that glob pattern is not supported yet.
+          bin: rae_cli
+          # (required) GitHub token for uploading assets to GitHub Releases.
+          token: ${{ secrets.GITHUB_TOKEN }}
