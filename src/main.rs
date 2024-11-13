@@ -9,7 +9,6 @@ use scraper::selectable::Selectable;
 use scraper::ElementRef;
 use scraper::{Html, Selector};
 use reqwest::{self, StatusCode};
-use html2text;
 use html2text::config;
 
 use std::cell::LazyCell;
@@ -96,7 +95,7 @@ fn handle_suggestions(options_list: ElementRef) -> RaeResult {
     use inquire::Select;
     
     let suggestion_list = options_list
-        .select(&*&OPTIONS_SELECTOR)
+        .select(&OPTIONS_SELECTOR)
         .filter_map(|x| x.text().next())
         .collect::<Vec<&str>>();
 
@@ -112,7 +111,7 @@ fn handle_suggestions(options_list: ElementRef) -> RaeResult {
 }
 
 fn try_get_definition(page_core: ElementRef) -> RaeResult {
-    match  page_core.select(&*RESULT_OR_SUGGESTION_SELECTOR).next() {
+    match  page_core.select(&RESULT_OR_SUGGESTION_SELECTOR).next() {
         Some(w) => match w.value().name() {
                      "article" => extract_definition(page_core),
                       "div" => handle_suggestions(w),
@@ -139,7 +138,7 @@ fn buschar_palabra(palabra: &str) -> RaeResult {
         let raw_page = response.text()?;
         let dom_fragment = Html::parse_document(&raw_page);
 
-        match dom_fragment.select(&*DIV_RESULTS_SELECTOR).next() {
+        match dom_fragment.select(&DIV_RESULTS_SELECTOR).next() {
             Some(c) => try_get_definition(c),
             _ => Err(RaeError::UnexpectedSiteStructure),
         }
@@ -160,7 +159,7 @@ fn main() {
         .get_one::<String>("palabra")
         .unwrap(); // required so unwrap is safe
     
-    match buschar_palabra(&p) {
+    match buschar_palabra(p) {
         Ok(s) => match s {
             RaeSuccess::Definicion(d) => println!("{}", d),
             RaeSuccess::NoEncontrado => println!("La palabra {} no está en el Diccionario.", p)
