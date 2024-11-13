@@ -2,7 +2,9 @@
 
 A command-line tool to search and display Spanish word definitions from the [Real Academia Española (RAE)](https://dle.rae.es/) dictionary.
 
-<img src="https://github.com/nanov/rae-cli/blob/main/docs/rae-cli-demo.gif?raw=true" />
+<p>
+<img src="https://github.com/nanov/rae-cli/blob/main/docs/rae-cli-demo.gif?raw=true" width="100%"  />
+</p>
 
 
 ## Installation
