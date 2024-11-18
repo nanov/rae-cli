@@ -1,4 +1,4 @@
-use std::{env, usize};
+use std::env;
 use std::fmt::Display;
 use const_format::concatcp;
 use inquire::InquireError;
@@ -11,16 +11,11 @@ use scraper::{Html, Selector};
 use reqwest::{self, StatusCode};
 use html2text::config;
 
-use std::cell::LazyCell;
-
 use clap::{arg, Command};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const NAME: &str = env!("CARGO_PKG_NAME");
 const CLI_USER_AGENT: &str = concatcp!(NAME, "/", VERSION);
-const DIV_RESULTS_SELECTOR: LazyCell<Selector> = LazyCell::new(|| { Selector::parse(r#"div[id="resultados"]"#).unwrap() });
-const RESULT_OR_SUGGESTION_SELECTOR: LazyCell<Selector> = LazyCell::new(|| { Selector::parse(r#"article, div[class="item-list"]"#).unwrap() });
-const OPTIONS_SELECTOR: LazyCell<Selector> = LazyCell::new(|| { Selector::parse("a").unwrap() });
 
 #[derive(Debug)]
 enum RaeError {
@@ -94,8 +89,10 @@ fn extract_definition(definicion_html: ElementRef) -> RaeResult {
 fn handle_suggestions(options_list: ElementRef) -> RaeResult {
     use inquire::Select;
     
+    let options_selector = Selector::parse("a").unwrap();
+
     let suggestion_list = options_list
-        .select(&OPTIONS_SELECTOR)
+        .select(&options_selector)
         .filter_map(|x| x.text().next())
         .collect::<Vec<&str>>();
 
@@ -111,7 +108,9 @@ fn handle_suggestions(options_list: ElementRef) -> RaeResult {
 }
 
 fn try_get_definition(page_core: ElementRef) -> RaeResult {
-    match  page_core.select(&RESULT_OR_SUGGESTION_SELECTOR).next() {
+    let result_or_suggestion_selector = Selector::parse(r#"article, div[class="item-list"]"#).unwrap();
+
+    match  page_core.select(&result_or_suggestion_selector).next() {
         Some(w) => match w.value().name() {
                      "article" => extract_definition(page_core),
                       "div" => handle_suggestions(w),
@@ -135,10 +134,11 @@ fn buschar_palabra(palabra: &str) -> RaeResult {
     if !response.status().is_success() {
         Err(RaeError::ResponseError(response.status()))
     } else { // I hate it that i have to use else here
+        let div_results_selector:Selector = Selector::parse(r#"div[id="resultados"]"#).unwrap();
         let raw_page = response.text()?;
         let dom_fragment = Html::parse_document(&raw_page);
 
-        match dom_fragment.select(&DIV_RESULTS_SELECTOR).next() {
+        match dom_fragment.select(&div_results_selector).next() {
             Some(c) => try_get_definition(c),
             _ => Err(RaeError::UnexpectedSiteStructure),
         }
